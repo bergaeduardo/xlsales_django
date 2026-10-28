@@ -1,0 +1,4 @@
+/* XLSales — Custom styles */
+.no-sidebar-transition * {
+    transition: none !important;
+}

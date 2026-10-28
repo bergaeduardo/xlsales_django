@@ -177,6 +177,7 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+    "EXCEPTION_HANDLER": "core.exception_handler.custom_exception_handler",
 }
 
 # =============================================================================
@@ -185,3 +186,29 @@ REST_FRAMEWORK = {
 LOGIN_URL = "/admin/login/"
 LOGIN_REDIRECT_URL = "/admin/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
+
+# =============================================================================
+# Logging
+# =============================================================================
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "{levelname} {asctime} {module} {message}", "style": "{"},
+        "simple": {"format": "{levelname} {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs" / "xlsales.log",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "arreglos": {"handlers": ["console", "file"], "level": "INFO", "propagate": False},
+        "cads": {"handlers": ["console", "file"], "level": "INFO", "propagate": False},
+        "core": {"handlers": ["console", "file"], "level": "INFO", "propagate": False},
+    },
+}
