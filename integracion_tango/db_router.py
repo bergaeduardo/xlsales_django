@@ -15,9 +15,10 @@ class TangoRouter:
         return None
 
     def db_for_write(self, model, **hints):
-        # Tango es readonly — bloquear escrituras a nivel router
         if model._meta.app_label in self.route_app_labels:
-            return None
+            # Enrutar a 'tango' para que el error sea claro (el usuario DB es readonly)
+            # en lugar de caer silenciosamente al default y fallar con "tabla no existe".
+            return "tango"
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
