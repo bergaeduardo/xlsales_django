@@ -1,0 +1,16 @@
+-r requirements.txt
+
+# Desarrollo
+django-extensions>=3.2
+django-debug-toolbar>=4.2
+
+# Testing
+pytest>=8.0
+pytest-django>=4.7
+pytest-cov>=4.1
+factory-boy>=3.3
+
+# Calidad de código
+black>=23.12
+isort>=5.13
+flake8>=7.0

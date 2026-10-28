@@ -1,0 +1,28 @@
+# Core Django
+Django>=5.0,<5.2
+psycopg2-binary>=2.9
+
+# Bases de datos
+mssql-django>=1.3
+pyodbc>=5.0
+
+# Configuración / entorno
+django-environ>=0.11
+
+# Autenticación y seguridad
+django-axes>=6.1
+
+# ORM y auditoría
+django-simple-history>=3.4
+
+# API
+djangorestframework>=3.15
+
+# Reportes PDF
+WeasyPrint>=60.0
+
+# Producción
+waitress>=3.0
+
+# Monitoreo (opcional)
+sentry-sdk>=1.39
