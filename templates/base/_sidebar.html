@@ -26,7 +26,7 @@
                 </li>
 
                 <!-- ── Arreglos ── -->
-                {% if request.user.has_perm 'arreglos.view_arreglo' or request.user.is_staff %}
+                {% if perms.arreglos.view_arreglo or request.user.is_staff %}
                 <div class="nav-section-title">Arreglos</div>
 
                 <li class="nav-item">
@@ -39,7 +39,7 @@
                     </a>
                 </li>
 
-                {% if request.user.has_perm 'arreglos.change_arreglo' or request.user.is_staff %}
+                {% if perms.arreglos.change_arreglo or request.user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.app_name == 'arreglos' and request.resolver_match.url_name == 'configuracion' %}active{% endif %}"
                        href="#">
@@ -53,7 +53,7 @@
                 {% endif %}
 
                 <!-- ── CADS ── -->
-                {% if request.user.has_perm 'cads.view_devolucion' or request.user.is_staff %}
+                {% if perms.cads.view_devolucion or request.user.is_staff %}
                 <div class="nav-section-title">CADS</div>
 
                 <li class="nav-item">
@@ -66,7 +66,7 @@
                     </a>
                 </li>
 
-                {% if request.user.has_perm 'cads.can_autorizar' or request.user.is_staff %}
+                {% if perms.cads.can_autorizar or request.user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.app_name == 'cads' and request.resolver_match.url_name == 'autorizaciones' %}active{% endif %}"
                        href="#">
@@ -78,7 +78,7 @@
                 </li>
                 {% endif %}
 
-                {% if request.user.has_perm 'cads.change_devolucion' or request.user.is_staff %}
+                {% if perms.cads.change_devolucion or request.user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.app_name == 'cads' and request.resolver_match.url_name == 'configuracion' %}active{% endif %}"
                        href="#">
