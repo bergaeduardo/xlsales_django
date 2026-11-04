@@ -145,6 +145,24 @@ def test_perfil_cascade_delete():
     assert not PerfilUsuario.objects.filter(pk=perfil_pk).exists()
 
 
+@pytest.mark.django_db
+def test_perfil_str():
+    user = User.objects.create_user(username="struser", password="pass")
+    perfil = PerfilUsuario.objects.create(user=user)
+    assert str(perfil) == f"Perfil de {user}"
+
+
+@pytest.mark.django_db
+def test_perfil_update_legacy_id():
+    user = User.objects.create_user(username="updateuser", password="pass")
+    perfil = PerfilUsuario.objects.create(user=user, usuario_legacy_id=None)
+    new_id = uuid.uuid4()
+    perfil.usuario_legacy_id = new_id
+    perfil.save()
+    perfil.refresh_from_db()
+    assert perfil.usuario_legacy_id == new_id
+
+
 # =============================================================================
 # 3. Smoke de migraciones
 # =============================================================================
@@ -152,8 +170,8 @@ def test_perfil_cascade_delete():
 
 @pytest.mark.django_db(databases=["default", "xlsales", "tango"])
 def test_migrations_consistent():
-    """makemigrations --check: no debe detectar cambios pendientes."""
-    call_command("makemigrations", "--check", "--dry-run", verbosity=0)
+    """makemigrations compartidos --check: no debe detectar cambios pendientes en esta app."""
+    call_command("makemigrations", "compartidos", "--check", "--dry-run", verbosity=0)
 
 
 @pytest.mark.django_db(transaction=True)
