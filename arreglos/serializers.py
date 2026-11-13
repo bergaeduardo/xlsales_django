@@ -14,6 +14,25 @@ class DetalleArticuloSerializer(serializers.ModelSerializer):
         fields = ["id_detalle_articulo", "codigo_articulo", "cantidad", "observacion"]
 
 
+class DetalleArticuloArregloSerializer(serializers.ModelSerializer):
+    pedido_id = serializers.IntegerField(source="pedido.id", read_only=True)
+
+    class Meta:
+        model = DetalleArticuloArreglo
+        fields = ["id_detalle_articulo", "pedido_id", "codigo_articulo", "cantidad", "observacion"]
+
+
+class DetalleArticuloArregloCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DetalleArticuloArreglo
+        fields = ["codigo_articulo", "cantidad", "observacion"]
+
+    def validate_cantidad(self, value):
+        if value < 1:
+            raise serializers.ValidationError("La cantidad debe ser mayor o igual a 1.")
+        return value
+
+
 class PedidoArregloListSerializer(serializers.ModelSerializer):
     estado_display = serializers.CharField(source="get_estado_display", read_only=True)
 

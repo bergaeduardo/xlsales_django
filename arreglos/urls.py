@@ -1,8 +1,9 @@
-"""URLs para el módulo de Pedidos de Reparación (US #975)."""
+"""URLs del módulo de Arreglos."""
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    DetalleArticuloArregloViewSet,
     PedidoArregloViewSet,
     pedido_cambiar_estado,
     pedido_create,
@@ -15,6 +16,7 @@ app_name = "arreglos"
 
 router = DefaultRouter()
 router.register(r"api/pedidos", PedidoArregloViewSet, basename="api-pedido")
+router.register(r"api/detalles", DetalleArticuloArregloViewSet, basename="api-detalle")
 
 urlpatterns = [
     path("", include(router.urls)),

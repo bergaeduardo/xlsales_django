@@ -24,9 +24,11 @@ from compartidos.permissions import (
     is_arreglos_operador,
 )
 
-from .models import EstadoArreglo, PedidoArreglo
+from .models import DetalleArticuloArreglo, EstadoArreglo, PedidoArreglo
 from .serializers import (
     CambiarEstadoSerializer,
+    DetalleArticuloArregloCreateSerializer,
+    DetalleArticuloArregloSerializer,
     PedidoArregloCreateSerializer,
     PedidoArregloDetailSerializer,
     PedidoArregloListSerializer,
@@ -192,6 +194,35 @@ class PedidoArregloViewSet(viewsets.ModelViewSet):
         kwargs["partial"] = True
         return self.update(request, *args, **kwargs)
 
+    @action(detail=True, methods=["get"], url_path="detalles")
+    def detalles(self, request, pk=None):
+        self._check_modulo_access(request.user)
+        pedido = self.get_object()
+        qs = pedido.detalles_articulo.all()
+        serializer = DetalleArticuloArregloSerializer(qs, many=True)
+        return Response({"ok": True, "data": serializer.data})
+
+    @action(detail=True, methods=["post"], url_path="detalles/agregar")
+    @transaction.atomic
+    def agregar_detalle(self, request, pk=None):
+        if not _puede_editar(request.user) and not _puede_crear(request.user):
+            return Response(
+                {"ok": False, "error": "Sin permiso para agregar detalles."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        pedido = self.get_object()
+        serializer = DetalleArticuloArregloCreateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({"ok": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        detalle = DetalleArticuloArreglo(**serializer.validated_data)
+        detalle.pedido = pedido
+        detalle.save(using="xlsales")
+        logger.info("Detalle creado en Pedido #%s por %s", pedido.pk, request.user)
+        return Response(
+            {"ok": True, "data": DetalleArticuloArregloSerializer(detalle).data},
+            status=status.HTTP_201_CREATED,
+        )
+
     @action(detail=True, methods=["post"], url_path="cambiar-estado")
     @transaction.atomic
     def cambiar_estado(self, request, pk=None):
@@ -237,6 +268,78 @@ class PedidoArregloViewSet(viewsets.ModelViewSet):
                 "estado_display": EstadoArreglo(nuevo_estado).label,
             },
         })
+
+
+# ---------------------------------------------------------------------------
+# ViewSet: DetalleArticuloArreglo (edición/borrado individual)
+# ---------------------------------------------------------------------------
+
+class DetalleArticuloArregloViewSet(viewsets.ModelViewSet):
+    """CRUD de detalles de artículos. Filtrar por ?pedido_id=X para listar."""
+
+    permission_classes = [IsAuthenticated]
+    queryset = DetalleArticuloArreglo.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ("create", "update", "partial_update"):
+            return DetalleArticuloArregloCreateSerializer
+        return DetalleArticuloArregloSerializer
+
+    def _check_access(self, user, write=False):
+        if not _tiene_acceso_lectura(user):
+            raise PermissionDenied("Sin acceso al módulo de arreglos.")
+        if write and not (_puede_editar(user) or _puede_crear(user)):
+            raise PermissionDenied("Sin permiso de escritura en detalles.")
+
+    def list(self, request, *args, **kwargs):
+        self._check_access(request.user)
+        qs = self.get_queryset()
+        pedido_id = request.query_params.get("pedido_id")
+        if pedido_id:
+            qs = qs.filter(pedido_id=pedido_id)
+        serializer = DetalleArticuloArregloSerializer(qs, many=True)
+        return Response({"ok": True, "data": serializer.data})
+
+    def retrieve(self, request, *args, **kwargs):
+        self._check_access(request.user)
+        return Response({"ok": True, "data": DetalleArticuloArregloSerializer(self.get_object()).data})
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        self._check_access(request.user, write=True)
+        pedido_id = request.data.get("pedido_id")
+        pedido = get_object_or_404(PedidoArreglo, pk=pedido_id)
+        serializer = DetalleArticuloArregloCreateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({"ok": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        detalle = DetalleArticuloArreglo(**serializer.validated_data)
+        detalle.pedido = pedido
+        detalle.save(using="xlsales")
+        return Response(
+            {"ok": True, "data": DetalleArticuloArregloSerializer(detalle).data},
+            status=status.HTTP_201_CREATED,
+        )
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        self._check_access(request.user, write=True)
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = DetalleArticuloArregloCreateSerializer(instance, data=request.data, partial=partial)
+        if not serializer.is_valid():
+            return Response({"ok": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save(using="xlsales")
+        return Response({"ok": True, "data": DetalleArticuloArregloSerializer(instance).data})
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
+
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        self._check_access(request.user, write=True)
+        self.get_object().delete(using="xlsales")
+        return Response({"ok": True}, status=status.HTTP_204_NO_CONTENT)
 
 
 # ---------------------------------------------------------------------------
