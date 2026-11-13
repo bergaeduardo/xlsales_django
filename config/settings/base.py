@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     "arreglos.apps.ArreglosConfig",
     "cads.apps.CadsConfig",
     "integracion_tango.apps.IntegracionTangoConfig",
+    "puntos_venta.apps.PuntosVentaConfig",
+    "configuracion.apps.ConfiguracionConfig",
 ]
 
 AUTHENTICATION_BACKENDS = [

@@ -50,4 +50,12 @@ skip_glob = ["*/migrations/*", "*/staticfiles/*"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["tests.py", "test_*.py", "*_test.py"]
-addopts = "--cov=. --cov-report=html --cov-omit=*/migrations/*,*/venv/*,manage.py,conftest.py"
+addopts = "--cov=. --cov-report=html"
+
+[tool.coverage.run]
+omit = [
+    "*/migrations/*",
+    "*/venv/*",
+    "manage.py",
+    "conftest.py",
+]
