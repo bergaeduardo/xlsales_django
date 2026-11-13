@@ -1,0 +1,114 @@
+{% extends 'base/tabler_base.html' %}
+
+{% block title %}Puntos de Venta — XL Sales{% endblock %}
+
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block page_actions %}
+<div class="col-auto ms-auto d-print-none">
+    <a href="{% url 'puntos_venta:create' %}" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Punto de Venta
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Buscar</label>
+                <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Código, nombre…">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <select name="activo" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="1" {% if activo_actual == "1" %}selected{% endif %}>Activos</option>
+                    <option value="0" {% if activo_actual == "0" %}selected{% endif %}>Inactivos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-sm btn-primary w-100">Filtrar</button>
+            </div>
+            {% if q or activo_actual %}
+            <div class="col-md-2">
+                <a href="{% url 'puntos_venta:list' %}" class="btn btn-sm btn-outline-secondary w-100">Limpiar</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Lista de Puntos de Venta</div>
+        <div class="ms-auto text-secondary small">
+            {{ paginator.count }} resultado{{ paginator.count|pluralize }}
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th class="w-1">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pv in puntos_venta %}
+                <tr>
+                    <td><strong>{{ pv.codigo }}</strong></td>
+                    <td>{{ pv.nombre }}</td>
+                    <td>{{ pv.direccion|default:"—" }}</td>
+                    <td>{{ pv.telefono|default:"—" }}</td>
+                    <td>
+                        {% if pv.activo %}
+                            <span class="badge bg-success-lt">Activo</span>
+                        {% else %}
+                            <span class="badge bg-secondary-lt">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'puntos_venta:update' pv.pk %}" class="btn btn-outline-primary" title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/></svg>
+                            </a>
+                            {% if pv.activo %}
+                            <a href="{% url 'puntos_venta:delete' pv.pk %}" class="btn btn-outline-danger" title="Desactivar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-secondary py-4">No hay puntos de venta registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+    <div class="card-footer d-flex align-items-center">
+        <p class="m-0 text-secondary">
+            Página {{ page_obj.number }} de {{ paginator.num_pages }}
+        </p>
+        <ul class="pagination m-0 ms-auto">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if activo_actual %}&activo={{ activo_actual }}{% endif %}">Anterior</a></li>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if activo_actual %}&activo={{ activo_actual }}{% endif %}">Siguiente</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
