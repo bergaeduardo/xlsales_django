@@ -5,3 +5,6 @@ class CompartidosConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "compartidos"
     verbose_name = "Compartidos"
+
+    def ready(self):
+        from . import models_roles  # noqa: F401
