@@ -18,6 +18,7 @@ urlpatterns = [
     # F1+: compartidos, arreglos, cads
     path("puntos-venta/", include("puntos_venta.urls")),
     path("configuracion/", include("configuracion.urls")),
+    path("arreglos/", include("arreglos.urls")),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,97 @@
+{% extends "base/tabler_base.html" %}
+
+{% block title %}Pedidos de Arreglo — XLSales{% endblock %}
+
+{% block page_title %}Pedidos de Reparación{% endblock %}
+
+{% block page_actions %}
+<div class="col-auto ms-auto">
+    {% if puede_crear %}
+    <a href="{% url 'arreglos:create' %}" class="btn btn-primary">
+        <i class="ti ti-plus me-1"></i>Nuevo Pedido
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    {% for val, label in estados %}
+                    <option value="{{ val }}" {% if filtro_estado == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Cliente</label>
+                <input type="text" name="cliente" class="form-control" value="{{ filtro_cliente }}" placeholder="Buscar por cliente…">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Desde</label>
+                <input type="date" name="fecha_desde" class="form-control" value="{{ filtro_fecha_desde }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Hasta</label>
+                <input type="date" name="fecha_hasta" class="form-control" value="{{ filtro_fecha_hasta }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary w-100">
+                    <i class="ti ti-search me-1"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Resultados ({{ pedidos|length }})</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-hover datatable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Estado</th>
+                    <th>Cliente</th>
+                    <th>Artículo</th>
+                    <th>Fecha Solicitud</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos %}
+                <tr>
+                    <td>{{ pedido.id }}</td>
+                    <td>
+                        <span class="badge bg-azure">{{ pedido.get_estado_display }}</span>
+                    </td>
+                    <td>{{ pedido.cliente|default:"-" }}</td>
+                    <td>{{ pedido.articulo|default:"-" }}</td>
+                    <td>{{ pedido.fecha_solicitud|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'arreglos:detail' pedido.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="ti ti-eye"></i>
+                        </a>
+                        {% if puede_editar %}
+                        <a href="{% url 'arreglos:update' pedido.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="ti ti-pencil"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay pedidos que coincidan con los filtros.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

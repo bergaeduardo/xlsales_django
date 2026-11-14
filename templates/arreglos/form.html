@@ -1,0 +1,103 @@
+{% extends "base/tabler_base.html" %}
+
+{% block title %}{{ titulo }} — XLSales{% endblock %}
+
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block page_subtitle %}
+<div class="page-pretitle">
+    <a href="{% url 'arreglos:list' %}">Pedidos de Reparación</a>
+    {% if pedido %} / <a href="{% url 'arreglos:detail' pedido.pk %}">Pedido #{{ pedido.pk }}</a>{% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<form method="post" class="card">
+    {% csrf_token %}
+    <div class="card-header"><h3 class="card-title">{{ titulo }}</h3></div>
+    <div class="card-body">
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <h4 class="alert-title">Corrija los errores:</h4>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label required">Cliente</label>
+                {{ form.cliente }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Email</label>
+                {{ form.email }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Teléfono</label>
+                {{ form.telefono }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label required">Fecha Solicitud</label>
+                {{ form.fecha_solicitud }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label required">Fecha Compra</label>
+                {{ form.fecha_de_compra }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label required">ID Comprobante</label>
+                {{ form.id_comprobante }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Artículo</label>
+                {{ form.articulo }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Descripción</label>
+                {{ form.descripcion }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Observaciones</label>
+                {{ form.observaciones }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Recibido</label>
+                {{ form.recibido }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Bolsín</label>
+                {{ form.bolsin }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Bolsín Egreso</label>
+                {{ form.bolsin_egreso }}
+            </div>
+        </div>
+
+        <hr class="my-3">
+        <h4>Reparaciones</h4>
+        <div class="row g-2">
+            {% for field in form.forro form.cierre form.costura form.correa form.herraje form.otro %}
+            <div class="col-md-2">
+                <div class="form-check">
+                    {{ field }}
+                    <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="row g-2 mt-2">
+            {% for field in form.txt_forro form.txt_cierre form.txt_costura form.txt_correa form.txt_herraje form.txt_otro %}
+            <div class="col-md-2">
+                <label class="form-label small">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-end gap-2">
+        <a href="{% url 'arreglos:list' %}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">{{ accion }}</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base/tabler_base.html" %}
+
+{% block title %}Pedido #{{ pedido.pk }} — XLSales{% endblock %}
+
+{% block page_title %}Pedido #{{ pedido.pk }}{% endblock %}
+
+{% block page_subtitle %}
+<div class="page-pretitle">
+    <a href="{% url 'arreglos:list' %}">Pedidos de Reparación</a> /
+    <span class="badge bg-azure ms-1">{{ pedido.get_estado_display }}</span>
+</div>
+{% endblock %}
+
+{% block page_actions %}
+<div class="col-auto ms-auto d-flex gap-2">
+    {% if puede_editar %}
+    <a href="{% url 'arreglos:update' pedido.pk %}" class="btn btn-outline-primary">
+        <i class="ti ti-pencil me-1"></i>Editar
+    </a>
+    {% endif %}
+    {% if transiciones %}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCambiarEstado">
+        <i class="ti ti-arrows-exchange me-1"></i>Cambiar Estado
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title">Datos del Pedido</h3></div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Cliente</dt><dd class="col-sm-8">{{ pedido.cliente|default:"-" }}</dd>
+                    <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ pedido.email|default:"-" }}</dd>
+                    <dt class="col-sm-4">Teléfono</dt><dd class="col-sm-8">{{ pedido.telefono|default:"-" }}</dd>
+                    <dt class="col-sm-4">Artículo</dt><dd class="col-sm-8">{{ pedido.articulo|default:"-" }}</dd>
+                    <dt class="col-sm-4">Descripción</dt><dd class="col-sm-8">{{ pedido.descripcion|default:"-" }}</dd>
+                    <dt class="col-sm-4">Observaciones</dt><dd class="col-sm-8">{{ pedido.observaciones|default:"-" }}</dd>
+                    <dt class="col-sm-4">Fecha Solicitud</dt><dd class="col-sm-8">{{ pedido.fecha_solicitud|date:"d/m/Y H:i" }}</dd>
+                    <dt class="col-sm-4">Fecha Compra</dt><dd class="col-sm-8">{{ pedido.fecha_de_compra|date:"d/m/Y H:i" }}</dd>
+                    <dt class="col-sm-4">ID Comprobante</dt><dd class="col-sm-8">{{ pedido.id_comprobante }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title">Detalles de Artículos</h3></div>
+            <div class="table-responsive">
+                <table class="table table-sm card-table">
+                    <thead>
+                        <tr><th>Código</th><th>Cantidad</th><th>Observación</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for d in detalles %}
+                        <tr>
+                            <td>{{ d.codigo_articulo|default:"-" }}</td>
+                            <td>{{ d.cantidad }}</td>
+                            <td>{{ d.observacion|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted">Sin detalles.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title">Chat</h3></div>
+            <div class="card-body">
+                {% for chat in chats %}
+                <div class="mb-2">
+                    <strong>{{ chat.usuario|default:"(sin usuario)" }}</strong>
+                    <span class="text-muted small ms-2">{{ chat.fecha|date:"d/m/Y H:i" }}</span>
+                    <p class="mb-0">{{ chat.descripcion|default:"-" }}</p>
+                </div>
+                {% empty %}
+                <p class="text-muted">Sin mensajes.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title">Historial de Cambios</h3></div>
+            <div class="list-group list-group-flush">
+                {% for h in history %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-azure">{{ h.estado|default:"-" }}</span>
+                        <small class="text-muted">{{ h.history_date|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    <small class="text-muted">{{ h.history_user|default:"Sistema" }}</small>
+                </div>
+                {% empty %}
+                <div class="list-group-item text-muted">Sin historial.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if transiciones %}
+<div class="modal modal-blur fade" id="modalCambiarEstado" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Estado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'arreglos:cambiar_estado' pedido.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="text-muted mb-2">Estado actual: <strong>{{ pedido.get_estado_display }}</strong></p>
+                    <div class="mb-3">
+                        <label class="form-label">Nuevo estado</label>
+                        <select name="estado" class="form-select" required>
+                            {% for estado in transiciones %}
+                            <option value="{{ estado.value }}">{{ estado.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

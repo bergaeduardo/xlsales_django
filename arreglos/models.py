@@ -129,7 +129,8 @@ class DetalleArticuloArreglo(models.Model):
         ordering = ["id_detalle_articulo"]
 
     def __str__(self):
-        return f"{self.codigo_articulo} x{self.cantidad}"
+        codigo = self.codigo_articulo or "s/d"
+        return f"{codigo} (pedido #{self.pedido_id})"
 
     @property
     def tiene_observacion(self):
