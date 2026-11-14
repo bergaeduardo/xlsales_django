@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     DetalleArticuloArregloViewSet,
     PedidoArregloViewSet,
+    chat_enviar_mensaje,
     pedido_cambiar_estado,
     pedido_create,
     pedido_detail,
@@ -25,4 +26,5 @@ urlpatterns = [
     path("pedidos/<int:pk>/", pedido_detail, name="detail"),
     path("pedidos/<int:pk>/editar/", pedido_update, name="update"),
     path("pedidos/<int:pk>/cambiar-estado/", pedido_cambiar_estado, name="cambiar_estado"),
+    path("pedidos/<int:pk>/chat/", chat_enviar_mensaje, name="chat_enviar"),
 ]

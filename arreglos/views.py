@@ -24,7 +24,7 @@ from compartidos.permissions import (
     is_arreglos_operador,
 )
 
-from .models import DetalleArticuloArreglo, EstadoArreglo, PedidoArreglo
+from .models import ChatArreglo, DetalleArticuloArreglo, EstadoArreglo, PedidoArreglo
 from .serializers import (
     CambiarEstadoSerializer,
     DetalleArticuloArregloCreateSerializer,
@@ -74,6 +74,10 @@ def _puede_crear(user):
 
 def _puede_editar(user):
     return is_arreglos_admin(user) or is_arreglos_operador(user)
+
+
+def _puede_chatear(user):
+    return is_arreglos_admin(user) or is_arreglos_operador(user) or is_arreglos_fabrica(user)
 
 
 def _tiene_acceso_lectura(user):
@@ -401,11 +405,13 @@ def pedido_detail(request, pk):
     return render(request, "arreglos/detail.html", {
         "pedido": pedido,
         "detalles": pedido.detalles_articulo.all(),
-        "chats": pedido.chats.all(),
+        "chats": pedido.chats.using("xlsales").order_by("fecha"),
         "history": history,
         "transiciones": transiciones,
         "puede_editar": _puede_editar(request.user),
+        "puede_chatear": _puede_chatear(request.user),
         "estados": EstadoArreglo.choices,
+        "FABRICA": EstadoArreglo.FABRICA,
     })
 
 
@@ -508,4 +514,46 @@ def pedido_cambiar_estado(request, pk):
         request,
         f"Estado actualizado a: {EstadoArreglo(nuevo_estado).label}",
     )
+    return redirect(reverse("arreglos:detail", kwargs={"pk": pk}))
+
+
+def chat_enviar_mensaje(request, pk):
+    """Vista POST para enviar un mensaje de chat en un pedido (US #977)."""
+    if not request.user.is_authenticated:
+        from django.contrib.auth.views import redirect_to_login
+        return redirect_to_login(request.get_full_path())
+    if not _puede_chatear(request.user):
+        raise PermissionDenied
+    if request.method != "POST":
+        return redirect(reverse("arreglos:detail", kwargs={"pk": pk}))
+
+    pedido = get_object_or_404(PedidoArreglo, pk=pk)
+
+    if pedido.estado < EstadoArreglo.FABRICA:
+        messages.error(request, "El chat no está disponible antes de que el pedido ingrese a fábrica.")
+        return redirect(reverse("arreglos:detail", kwargs={"pk": pk}))
+
+    descripcion = request.POST.get("descripcion", "").strip()
+    if not descripcion:
+        messages.error(request, "El mensaje no puede estar vacío.")
+        return redirect(reverse("arreglos:detail", kwargs={"pk": pk}))
+
+    nombre_usuario = request.user.get_full_name() or request.user.username
+
+    id_usuario = None
+    try:
+        id_usuario = request.user.perfilusuario.usuario_legacy_id
+    except Exception:
+        pass
+
+    ChatArreglo.objects.using("xlsales").create(
+        pedido=pedido,
+        descripcion=descripcion,
+        usuario=nombre_usuario,
+        fecha=timezone.now(),
+        id_usuario=id_usuario,
+    )
+
+    logger.info("Pedido #%s: chat enviado por %s", pedido.pk, request.user)
+    messages.success(request, "Mensaje enviado.")
     return redirect(reverse("arreglos:detail", kwargs={"pk": pk}))
