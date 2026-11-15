@@ -18,35 +18,15 @@ def _make_user(username, groups=()):
 # Serializer — CreateSerializer
 # ---------------------------------------------------------------------------
 
-def test_create_serializer_cantidad_valida():
-    s = DetalleArticuloArregloCreateSerializer(data={"codigo_articulo": "ART001", "cantidad": 2})
+def test_create_serializer_con_codigo():
+    s = DetalleArticuloArregloCreateSerializer(data={"codigo_articulo": "ART001"})
     assert s.is_valid(), s.errors
-    assert s.validated_data["cantidad"] == 2
-
-
-def test_create_serializer_cantidad_cero_invalida():
-    s = DetalleArticuloArregloCreateSerializer(data={"codigo_articulo": "ART001", "cantidad": 0})
-    assert not s.is_valid()
-    assert "cantidad" in s.errors
-
-
-def test_create_serializer_cantidad_negativa_invalida():
-    s = DetalleArticuloArregloCreateSerializer(data={"codigo_articulo": "ART001", "cantidad": -1})
-    assert not s.is_valid()
-    assert "cantidad" in s.errors
+    assert s.validated_data["codigo_articulo"] == "ART001"
 
 
 def test_create_serializer_sin_codigo_es_valido():
-    s = DetalleArticuloArregloCreateSerializer(data={"cantidad": 1})
+    s = DetalleArticuloArregloCreateSerializer(data={})
     assert s.is_valid(), s.errors
-
-
-def test_create_serializer_con_observacion():
-    s = DetalleArticuloArregloCreateSerializer(
-        data={"codigo_articulo": "BOLSO-X", "cantidad": 3, "observacion": "Verificar color"}
-    )
-    assert s.is_valid(), s.errors
-    assert s.validated_data["observacion"] == "Verificar color"
 
 
 # ---------------------------------------------------------------------------
@@ -92,5 +72,3 @@ def test_detalle_serializer_campos():
     assert "id_detalle_articulo" in fields
     assert "pedido_id" in fields
     assert "codigo_articulo" in fields
-    assert "cantidad" in fields
-    assert "observacion" in fields

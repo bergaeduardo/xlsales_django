@@ -51,14 +51,12 @@
             <div class="table-responsive">
                 <table class="table table-sm card-table">
                     <thead>
-                        <tr><th>Código</th><th>Cantidad</th><th>Observación</th></tr>
+                        <tr><th>Código de artículo</th></tr>
                     </thead>
                     <tbody>
                         {% for d in detalles %}
                         <tr>
                             <td>{{ d.codigo_articulo|default:"-" }}</td>
-                            <td>{{ d.cantidad }}</td>
-                            <td>{{ d.observacion|default:"-" }}</td>
                         </tr>
                         {% empty %}
                         <tr><td colspan="3" class="text-center text-muted">Sin detalles.</td></tr>

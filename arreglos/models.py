@@ -113,12 +113,6 @@ class DetalleArticuloArreglo(models.Model):
     )
     codigo_articulo = models.CharField(
         "código de artículo", max_length=100, null=True, blank=True, db_column="CodigoArticulo")
-    cantidad = models.IntegerField("cantidad", default=1, db_column="Cantidad")
-    observacion = models.CharField("observación", max_length=255, null=True, blank=True, db_column="Observacion")
-
-    # Nota: la escritura en xlsales y la escritura histórica en default
-    # NO son atómicas entre DBs — fallo del historial es silencioso (signals).
-    history = HistoricalRecords()
 
     class Meta:
         managed = False
@@ -131,16 +125,6 @@ class DetalleArticuloArreglo(models.Model):
     def __str__(self):
         codigo = self.codigo_articulo or "s/d"
         return f"{codigo} (pedido #{self.pedido_id})"
-
-    @property
-    def tiene_observacion(self):
-        return bool(self.observacion.strip()) if self.observacion else False
-
-    @classmethod
-    def cantidad_total_por_pedido(cls, pedido_id):
-        from django.db.models import Sum
-
-        return cls.objects.filter(pedido_id=pedido_id).aggregate(total=Sum("cantidad")).get("total", 0)
 
 
 class ChatArreglo(models.Model):
@@ -160,10 +144,6 @@ class ChatArreglo(models.Model):
     )
     descripcion = models.TextField("descripción", null=True, blank=True, db_column="Descripcion")
     id_usuario = models.UUIDField("ID de usuario", null=True, blank=True, db_column="IdUsuario")
-
-    # Nota: la escritura en xlsales y la escritura histórica en default
-    # NO son atómicas entre DBs — fallo del historial es silencioso (signals).
-    history = HistoricalRecords()
 
     class Meta:
         managed = False

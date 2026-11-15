@@ -2,6 +2,9 @@ from .base import *  # noqa: F401, F403
 
 DEBUG = True
 
+ALLOWED_HOSTS += ["host.docker.internal"]  # noqa: F405
+CSRF_TRUSTED_ORIGINS += ["http://host.docker.internal:8001"]  # noqa: F405
+
 INSTALLED_APPS += [  # noqa: F405
     "django_extensions",
     "debug_toolbar",

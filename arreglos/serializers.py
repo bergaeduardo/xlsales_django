@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class DetalleArticuloSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetalleArticuloArreglo
-        fields = ["id_detalle_articulo", "codigo_articulo", "cantidad", "observacion"]
+        fields = ["id_detalle_articulo", "codigo_articulo"]
 
 
 class DetalleArticuloArregloSerializer(serializers.ModelSerializer):
@@ -19,18 +19,13 @@ class DetalleArticuloArregloSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DetalleArticuloArreglo
-        fields = ["id_detalle_articulo", "pedido_id", "codigo_articulo", "cantidad", "observacion"]
+        fields = ["id_detalle_articulo", "pedido_id", "codigo_articulo"]
 
 
 class DetalleArticuloArregloCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetalleArticuloArreglo
-        fields = ["codigo_articulo", "cantidad", "observacion"]
-
-    def validate_cantidad(self, value):
-        if value < 1:
-            raise serializers.ValidationError("La cantidad debe ser mayor o igual a 1.")
-        return value
+        fields = ["codigo_articulo"]
 
 
 class PedidoArregloListSerializer(serializers.ModelSerializer):

@@ -6,7 +6,7 @@ from .models import DetalleArticuloArreglo, PedidoArreglo
 class DetalleArticuloInline(admin.TabularInline):
     model = DetalleArticuloArreglo
     extra = 0
-    fields = ["codigo_articulo", "cantidad", "observacion"]
+    fields = ["codigo_articulo"]
     can_delete = True
 
 

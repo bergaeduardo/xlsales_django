@@ -154,9 +154,6 @@ def test_detalle_str_sin_codigo():
     assert str(d) == "s/d (pedido #3)"
 
 
-def test_detalle_tiene_historical_records():
-    assert hasattr(DetalleArticuloArreglo, "history")
-
 
 # ---------------------------------------------------------------------------
 # ChatArreglo — estructura
@@ -196,9 +193,6 @@ def test_chat_str():
     c = ChatArreglo(id=99, pedido_id=5)
     assert str(c) == "Chat #99 (pedido #5)"
 
-
-def test_chat_tiene_historical_records():
-    assert hasattr(ChatArreglo, "history")
 
 
 # ---------------------------------------------------------------------------

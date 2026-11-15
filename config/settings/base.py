@@ -185,9 +185,9 @@ REST_FRAMEWORK = {
 # =============================================================================
 # Login / Logout
 # =============================================================================
-LOGIN_URL = "/admin/login/"
-LOGIN_REDIRECT_URL = "/admin/"
-LOGOUT_REDIRECT_URL = "/admin/login/"
+LOGIN_URL = "/auth/login/"
+LOGIN_REDIRECT_URL = "/arreglos/pedidos/"
+LOGOUT_REDIRECT_URL = "/auth/login/"
 
 # =============================================================================
 # Logging
