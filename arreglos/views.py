@@ -4,6 +4,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -86,8 +87,6 @@ def _tiene_acceso_lectura(user):
 
 def _notificar_cambio_estado(pedido_id, estado_anterior, estado_nuevo, usuario_nombre):
     """Envía email de notificación de cambio de estado (llamar con on_commit)."""
-    from django.core.mail import send_mail
-
     try:
         pedido = PedidoArreglo.objects.get(pk=pedido_id)
         if not pedido.email:
